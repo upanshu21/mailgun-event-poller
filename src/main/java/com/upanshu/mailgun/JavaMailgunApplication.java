@@ -1,57 +1,45 @@
 package com.upanshu.mailgun;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.upanshu.mailgun.events.IncomingEmailDeliveryStatusEvent;
-import org.json.JSONObject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 
+@EnableScheduling
 @SpringBootApplication
-public class JavaMailgunApplication {
+public class JavaMailgunApplication implements CommandLineRunner {
 
-	public static String YOUR_DOMAIN_NAME = "sandboxd1382775df88420498e9237348912a78.mailgun.org";
+	private static final Logger log = LoggerFactory.getLogger(JavaMailgunApplication.class);
 
+	public static String YOUR_DOMAIN_NAME = "sandboxf61208194e014fbda2d95be95385fc99.mailgun.org";
 
-
-	public static JSONObject getLogs() throws UnirestException {
-
-		HttpResponse<JsonNode> request = Unirest.get("https://api.mailgun.net/v3/" + YOUR_DOMAIN_NAME + "/events")
-				.basicAuth("api", "b26a53756fd0c37ba9878b579da0db4a-77751bfc-f0a44072")
-				.queryString("begin", "Mon, 16 Feb 2021 09:00:00 -0000")
-				//.queryString("id", "KV14FN4RSd2jwZSVZz_-fg")
-				.queryString("ascending", "yes")
-				.queryString("limit", 10)
+	public static JsonNode sendSimpleMessage() throws UnirestException {
+		HttpResponse<JsonNode> request = Unirest.post("https://api.mailgun.net/v3/" + YOUR_DOMAIN_NAME + "/messages")
+				.basicAuth("api", "708c1e9dce63aa82f53ac4974e5b0ed1-d32d817f-8cb3b0b7")
+				.queryString("from", "MailgunTest tobby.singh101@gmail.com")
+				.queryString("to", "upanshu21@gmail.com")
+				.queryString("subject", "Offer from team Ackerman")
+				.queryString("text", "Will you join the levi squad? Also sent from code, testing.")
 				.asJson();
-
-		return request.getBody().getObject();
+		return request.getBody();
 	}
 
-	public static void main(String[] args) {
+
+	public static void main(String[] args) throws UnirestException {
 		SpringApplication.run(JavaMailgunApplication.class, args);
-
-		ObjectMapper objectMapper  = new ObjectMapper();
-
-		try {
-
-			JSONObject jsonNode = getLogs();
-			System.out.println(jsonNode);
-//			IncomingEmailDeliveryStatusEvent incomingEmailDeliveryStatusEvent = objectMapper.readValue(jsonNode.toString(), IncomingEmailDeliveryStatusEvent.class);
-//			JSONObject j = new JSONObject();
-//			j.put("items", incomingEmailDeliveryStatusEvent.getItems());
-//
-//			System.out.println(j);
-
-		} catch (UnirestException e) {
-			e.printStackTrace();
-		}
+		//sendSimpleMessage();
 	}
 
+	@Override
+	public void run(String... args) throws Exception {
+		log.info("Schdeuler started for poller integration");
+	}
 }
