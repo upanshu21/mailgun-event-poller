@@ -1,0 +1,5 @@
+mailgun:
+  domain: ${MAILGUN_DOMAIN:test}
+  api: ${MAILGUN_API:test}
+  timeInEpocSeconds: 12344566
+  NoOfEventsInSingleRequest: 1
